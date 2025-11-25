@@ -1,51 +1,57 @@
 // models/Post.js
 import { Schema, models, model } from "mongoose";
 
-/**
- * Post = anything that appears in your feed:
- * - type: "project" → main portfolio projects
- * - type: "post"    → normal updates, thoughts, achievements, etc.
- */
-
 const PostSchema = new Schema(
   {
-    // "project" or "post"
+    // "project" = main portfolio projects
+    // "post"    = normal updates
+    // "reel"    = short video demos
     type: {
       type: String,
-      enum: ["project", "post"],
+      enum: ["project", "post", "reel"],
       required: true,
       default: "project",
     },
 
     // Common fields
-    title: { type: String, required: true },           // e.g. "AI Cab Pooling Platform"
-    subtitle: { type: String },                        // short subheading / one-liner
-    content: { type: String },                         // long description / caption
-    images: [{ type: String }],                        // screenshots, cover images
-    tags: [{ type: String }],                          // e.g. ["Hackathon", "Web App"]
+    title: { type: String, required: true },   // e.g. "AI Cab Pooling Platform"
+    subtitle: { type: String },
+    content: { type: String },
+    images: [{ type: String }],
+    tags: [{ type: String }],
 
-    // Project-specific fields (used when type = "project")
-    techStack: [{ type: String }],                     // ["Next.js", "Node", "MongoDB"]
+    // Project-specific / shared
+    techStack: [{ type: String }],
     githubUrl: { type: String },
-    liveUrl: { type: String },                         // deployed link
-    caseStudyUrl: { type: String },                    // optional blog / detailed page link
+    liveUrl: { type: String },
+    caseStudyUrl: { type: String },
+
+    // Reel-specific
+    videoUrl: { type: String },       // used when type === "reel"
+    thumbnailUrl: { type: String },
 
     // Meta
-    isPinned: { type: Boolean, default: false },       // show on top of feed
-    order: { type: Number, default: 0 },               // custom sort if needed
+    isPinned: { type: Boolean, default: false },
+    order: { type: Number, default: 0 },
 
-    // Analytics / social-style stuff if you want
+    // Simple analytics
     likes: { type: Number, default: 0 },
     views: { type: Number, default: 0 },
 
-    // Future: which user created it (for multi-user, if needed)
+    // Interaction details
+    comments: [
+      {
+        text: { type: String },
+        createdAt: { type: Date, default: Date.now },
+      },
+    ],
+    commentsCount: { type: Number, default: 0 },
+    savedCount: { type: Number, default: 0 },
+
     createdBy: { type: Schema.Types.ObjectId, ref: "User" },
   },
-  {
-    timestamps: true, // createdAt, updatedAt
-  }
+  { timestamps: true }
 );
 
-// Avoid model overwrite error in Next.js
 const Post = models.Post || model("Post", PostSchema);
 export default Post;

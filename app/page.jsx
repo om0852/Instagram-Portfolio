@@ -16,14 +16,33 @@ import {
   Menu,
 } from "lucide-react";
 import InstagramSidebar from "./_components/Sidebar";
-
+import PostCard from "@/app/_components/PostCard";
+import StoryList from "@/app/_components/StoryList";
+import StoryViewer from "@/app/_components/StoryViewer";
+import Feed from "@/app/_components/Feed";
+import MobileHeader from "@/app/_components/MobileHeader";
+import RightSidebar from "@/app/_components/RightSidebar";
+import BottomNav from "@/app/_components/BottomNav";
+import axios from "axios";
 export default function InstagramHome() {
   const [activeStoryIndex, setActiveStoryIndex] = useState(null);
   const [progress, setProgress] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [touchStart, setTouchStart] = useState(0);
+  const [feed, setFeed] = useState([]);
   const timerRef = useRef(null);
+
+  const fetchFeed = async () => {
+    const feedData = await axios.get("/api/posts");
+    // console.log(feedData )
+    setFeed(feedData.data.data);
+  };
+        <MobileHeader />
+        <div className="flex">
+  useEffect(() => {
+    fetchFeed();
+  }, []);
 
   const stories = [
     {
@@ -59,10 +78,8 @@ export default function InstagramHome() {
         "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=800",
     },
     {
-      username: "tech_wizzd",
-      image:
-        "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150",
-      gradient: "from-yellow-400 via-pink-500 to-purple-600",
+              <StoryList stories={stories} openStory={openStory} />
+              <Feed feed={feed} />
       content:
         "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=800",
     },
@@ -275,129 +292,10 @@ export default function InstagramHome() {
               </div>
 
               {/* Post */}
-              <div className="bg-black border-b border-gray-800 mb-4">
-                <div className="flex items-center justify-between px-3 py-2.5">
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-full">
-                      <img
-                        src="https://images.unsplash.com/photo-1511367461989-f85a21fda167?w=150"
-                        alt="mumbaiindians"
-                        className="w-full h-full rounded-full object-cover"
-                      />
-                    </div>
-                    <div className="flex items-center gap-1.5">
-                      <span className="text-white text-sm font-semibold">
-                        mumbaiindians
-                      </span>
-                      <svg
-                        className="w-3.5 h-3.5 text-blue-500"
-                        fill="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
-                      </svg>
-                      <span className="text-gray-400 text-sm">• 6h</span>
-                    </div>
-                  </div>
-                  <button className="text-white">
-                    <MoreHorizontal size={20} />
-                  </button>
-                </div>
-
-                <img
-                  src="https://images.unsplash.com/photo-1566753323558-f4e0952af115?w=800"
-                  alt="Post"
-                  className="w-full aspect-square object-cover"
-                />
-
-                <div className="px-3 py-2.5">
-                  <div className="flex items-center justify-between mb-2">
-                    <div className="flex items-center gap-4">
-                      <button className="hover:opacity-50 transition-opacity">
-                        <Heart
-                          size={26}
-                          className="text-white"
-                          strokeWidth={1.5}
-                        />
-                      </button>
-                      <button className="hover:opacity-50 transition-opacity">
-                        <MessageCircle
-                          size={26}
-                          className="text-white"
-                          strokeWidth={1.5}
-                        />
-                      </button>
-                      <button className="hover:opacity-50 transition-opacity">
-                        <Send
-                          size={26}
-                          className="text-white"
-                          strokeWidth={1.5}
-                        />
-                      </button>
-                    </div>
-                    <button className="hover:opacity-50 transition-opacity">
-                      <svg
-                        className="w-6 h-6 text-white"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="1.5"
-                        viewBox="0 0 24 24"
-                      >
-                        <path d="M5 5l7-2 7 2v11.5l-7 2.5-7-2.5V5z" />
-                      </svg>
-                    </button>
-                  </div>
-
-                  <div className="flex items-center gap-1 mb-2">
-                    <div className="flex -space-x-2">
-                      <img
-                        src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=50"
-                        alt=""
-                        className="w-5 h-5 rounded-full border border-black"
-                      />
-                      <img
-                        src="https://images.unsplash.com/photo-1517841905240-472988babdf9?w=50"
-                        alt=""
-                        className="w-5 h-5 rounded-full border border-black"
-                      />
-                    </div>
-                    <span className="text-white text-sm font-semibold">
-                      205,290 likes
-                    </span>
-                  </div>
-
-                  <div className="mb-1">
-                    <span className="text-white text-sm font-semibold">
-                      mumbaiindians{" "}
-                    </span>
-                    <svg
-                      className="w-3 h-3 text-blue-500 inline"
-                      fill="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
-                    </svg>
-                    <span className="text-white text-sm">
-                      {" "}
-                      The He-man of Bollywood will forever remain in our hearts{" "}
-                    </span>
-                    <span className="text-blue-400 text-sm">💙</span>
-                  </div>
-                  <button className="text-gray-400 text-sm">... more</button>
-
-                  <button className="text-gray-400 text-sm block mt-1">
-                    View all 649 comments
-                  </button>
-
-                  <div className="flex items-center gap-2 mt-2 pt-2 border-t border-gray-800">
-                    <input
-                      type="text"
-                      placeholder="Add a comment..."
-                      className="bg-transparent text-white text-sm flex-1 outline-none placeholder-gray-500"
-                    />
-                  </div>
-                </div>
-              </div>
+              {feed && feed.map((item) => (
+                <PostCard key={item._id} {...item} />
+              ))}
+              {/* <PostCard /> */}
             </div>
           </div>
 
