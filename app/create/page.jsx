@@ -75,7 +75,7 @@ export default function CreatePage() {
 
                 {/* Mobile Header */}
                 <div className="w-full md:hidden fixed top-0 z-50">
-                    <MobileHeader />
+                    <MobileHeader setIsMobileMenuOpen={setIsMobileMenuOpen} />
                 </div>
 
                 {/* Modal Container (Center on Desktop) */}

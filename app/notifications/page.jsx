@@ -41,7 +41,7 @@ export default function NotificationsPage() {
         {
             id: "static_4",
             type: "update",
-            user: { username: "om_salunke_dev", image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150" },
+            user: { username: "om_salunke_dev", image: "/omsalunke_photo.jpg" },
             content: "posted a new project: AI Brand Identity.",
             time: "5h",
             projectImage: "https://images.unsplash.com/photo-1677442136019-21780ecad995?w=150",
@@ -120,7 +120,7 @@ export default function NotificationsPage() {
         <div className="flex bg-black min-h-screen text-white font-sans pb-16 lg:pb-0">
             <InstagramSidebar isMobileMenuOpen={isMobileMenuOpen} setIsMobileMenuOpen={setIsMobileMenuOpen} />
             <div className="flex-1 lg:ml-64">
-                <MobileHeader />
+                <MobileHeader setIsMobileMenuOpen={setIsMobileMenuOpen} />
                 <main className="max-w-2xl mx-auto px-0 md:px-5 pt-4 md:pt-8 pb-12">
 
                     <h1 className="text-2xl font-bold px-4 mb-6">Notifications</h1>

@@ -1,20 +1,33 @@
 "use client";
-import React from "react";
-import { Home, Search, PlusSquare, PlaySquare } from "lucide-react";
+import Link from "next/link";
+import Image from "next/image";
+import { Home, Search, PlusSquare, Compass, User } from "lucide-react";
 
 export default function BottomNav() {
   return (
-    <div className="lg:hidden bg-black border-t border-[#262626] px-4 py-2 fixed bottom-0 left-0 right-0 z-40">
-      <div className="flex justify-around items-center">
-        <Home className="text-white" size={26} strokeWidth={1.5} />
-        <Search className="text-white" size={26} strokeWidth={1.5} />
-        <PlusSquare className="text-white" size={26} strokeWidth={1.5} />
-        <PlaySquare className="text-white" size={26} strokeWidth={1.5} />
-        <div className="w-7 h-7 rounded-full bg-gray-700 relative overflow-hidden">
-          {/* Profile placeholder - ideally use Image component or similar logic if user is avail */}
-          <div className="w-full h-full bg-gradient-to-tr from-yellow-400 to-red-500 rounded-full"></div>
+    <div className="lg:hidden bg-black border-t border-[#262626] px-4 py-3 fixed bottom-0 left-0 right-0 z-50 flex justify-between items-center pb-5 md:pb-3">
+      <Link href="/" className="text-white">
+        <Home size={28} strokeWidth={1.5} />
+      </Link>
+      <Link href="/search" className="text-white">
+        <Search size={28} strokeWidth={1.5} />
+      </Link>
+      <Link href="/create" className="text-white">
+        <PlusSquare size={28} strokeWidth={1.5} />
+      </Link>
+      <Link href="/projects" className="text-white">
+        <Compass size={28} strokeWidth={1.5} />
+      </Link>
+      <Link href="/profile" className="text-white">
+        <div className="w-7 h-7 relative rounded-full overflow-hidden border border-gray-600">
+          <Image
+            src="/omsalunke_photo.jpg"
+            alt="Profile"
+            fill
+            className="object-cover"
+          />
         </div>
-      </div>
+      </Link>
     </div>
   );
 }

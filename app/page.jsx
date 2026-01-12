@@ -106,26 +106,7 @@ export default function InstagramHome() {
     }
   }, [page]);
 
-  const stories = [
-    {
-      username: "React",
-      image: "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a7/React-icon.svg/1200px-React-icon.svg.png",
-      gradient: "from-blue-400 via-blue-500 to-blue-600",
-      content: "https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=800",
-    },
-    {
-      username: "Node.js",
-      image: "https://nodejs.org/static/images/logo.svg",
-      gradient: "from-green-400 via-green-500 to-green-600",
-      content: "https://images.unsplash.com/photo-1627398242454-45a1465c2479?w=800",
-    },
-    {
-      username: "Design",
-      image: "https://upload.wikimedia.org/wikipedia/commons/3/33/Figma-logo.svg",
-      gradient: "from-purple-400 via-pink-500 to-red-500",
-      content: "https://images.unsplash.com/photo-1581291518633-83b4ebd1d83e?w=800",
-    },
-  ];
+
 
   const suggestions = [
     {
@@ -262,18 +243,18 @@ export default function InstagramHome() {
   };
 
   return (
-    <div className="flex bg-black min-h-screen">
+    <div className="flex bg-black  min-h-screen">
       <InstagramSidebar
         isMobileMenuOpen={isMobileMenuOpen}
         setIsMobileMenuOpen={setIsMobileMenuOpen}
       />
 
-      <div className="flex-1 lg:ml-64">
-        <MobileHeader />
+      <div className="flex-1 lg:ml-64 max-w-[100%]">
+        <MobileHeader setIsMobileMenuOpen={setIsMobileMenuOpen} />
 
         <div className="flex">
-          <div className="flex-1 overflow-y-auto bg-black">
-            <div className="max-w-[630px] mx-auto py-4 md:py-8">
+          <div className="flex-1 overflow-y-auto bg-black w-full relative">
+            <div className="w-full max-w-[630px] mx-auto py-4 md:py-8">
               {loading ? (
                 <>
                   <div className="flex gap-3 md:gap-4 mb-6 px-4 overflow-x-auto scrollbar-hide" style={{ scrollbarWidth: "none" }}>
@@ -286,8 +267,8 @@ export default function InstagramHome() {
                   ))}
                 </>
               ) : (
-                <>
-                  <StoryList stories={storiesData.length ? storiesData : stories} openStory={openStory} />
+                <div className="overflow-hidden max-w-full">
+                  <StoryList stories={storiesData} openStory={openStory} />
                   {feed && feed.map((item) => <PostCard key={item._id} {...item} />)}
 
                   {/* Infinite Scroll Loader & Target */}
@@ -295,7 +276,7 @@ export default function InstagramHome() {
                     {hasMore && <div className="w-6 h-6 border-2 border-gray-600 border-t-transparent rounded-full animate-spin"></div>}
                     {!hasMore && feed.length > 0 && <p className="text-gray-500 text-sm">You've caught up!</p>}
                   </div>
-                </>
+                </div>
               )}
             </div>
           </div>
@@ -305,7 +286,7 @@ export default function InstagramHome() {
 
         <StoryViewer
           activeStoryIndex={activeStoryIndex}
-          stories={storiesData.length ? storiesData : stories}
+          stories={storiesData}
           closeStory={closeStory}
           handleStoryPress={handleStoryPress}
           handleStoryRelease={handleStoryRelease}

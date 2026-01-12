@@ -59,7 +59,7 @@ export default function ResumePage() {
         <div className="flex bg-black min-h-screen text-white font-sans pb-16 lg:pb-0">
             <InstagramSidebar isMobileMenuOpen={isMobileMenuOpen} setIsMobileMenuOpen={setIsMobileMenuOpen} />
             <div className="flex-1 lg:ml-64">
-                <MobileHeader />
+                <MobileHeader setIsMobileMenuOpen={setIsMobileMenuOpen} />
                 <main className="max-w-5xl mx-auto px-6 pt-10 pb-16">
 
                     {/* Header */}

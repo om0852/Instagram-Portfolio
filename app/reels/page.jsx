@@ -40,7 +40,7 @@ export default function ReelsPage() {
             <InstagramSidebar isMobileMenuOpen={isMobileMenuOpen} setIsMobileMenuOpen={setIsMobileMenuOpen} />
             <div className="flex-1 lg:ml-64 flex flex-col items-center pt-0 md:pt-8 bg-black">
                 <div className="w-full md:hidden">
-                    <MobileHeader />
+                    <MobileHeader setIsMobileMenuOpen={setIsMobileMenuOpen} />
                 </div>
                 <div className="w-full max-w-[400px] h-[calc(100vh-40px)] space-y-4 overflow-y-auto scrollbar-hide snap-y snap-mandatory">
                     {reels.map((reel) => (

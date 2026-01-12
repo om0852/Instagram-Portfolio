@@ -16,6 +16,7 @@ export async function GET(req) {
             // Search mode: regex on title, tags, or techStack
             const regex = new RegExp(query, "i"); // case-insensitive
             posts = await Post.find({
+                type: "project",
                 $or: [
                     { title: regex },
                     { tags: { $in: [regex] } },
@@ -27,8 +28,8 @@ export async function GET(req) {
                 .limit(20);
         } else {
             // Explore mode: show popular posts (most liked) or random
-            // For now, let's show most liked
-            posts = await Post.find({})
+            // For now, let's show most liked projects
+            posts = await Post.find({ type: "project" })
                 .sort({ likes: -1 })
                 .limit(21);
         }

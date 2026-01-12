@@ -7,8 +7,16 @@ export const dynamic = 'force-dynamic';
 export async function GET(req) {
   try {
     await connectToDatabase();
-    // Simple fetch for now, can support pagination later
-    const posts = await Post.find({}).sort({ createdAt: -1 });
+    const { searchParams } = new URL(req.url);
+    const page = parseInt(searchParams.get("page")) || 1;
+    const limit = parseInt(searchParams.get("limit")) || 5;
+    const skip = (page - 1) * limit;
+
+    const posts = await Post.find({ type: "project" })
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit);
+
     return NextResponse.json({ success: true, data: posts });
   } catch (error) {
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });

@@ -68,7 +68,16 @@ const PostCard = ({
   const [commentText, setCommentText] = useState("");
   const [showComments, setShowComments] = useState(false);
   const [showShare, setShowShare] = useState(false);
+  const [showHeartAnimation, setShowHeartAnimation] = useState(false);
   const [imageError, setImageError] = useState(false);
+
+  const handleDoubleClick = () => {
+    setShowHeartAnimation(true);
+    if (!isLiked) {
+      toggleLike();
+    }
+    setTimeout(() => setShowHeartAnimation(false), 1000);
+  };
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);
@@ -131,7 +140,7 @@ const PostCard = ({
         <div className="flex items-center gap-3">
           <div className="w-8 h-8 rounded-full flex-shrink-0 relative">
             <Image
-              src={thumbnailUrl}
+              src="/omsalunke_photo.jpg"
               alt={title}
               fill
               className="rounded-full object-cover"
@@ -154,7 +163,7 @@ const PostCard = ({
       </div>
 
       {/* Media Section */}
-      <div className="relative bg-black">
+      <div className="relative bg-black" onDoubleClick={handleDoubleClick}>
         {videoUrl ? (
           <div className="relative w-full aspect-square">
             <video
@@ -207,6 +216,13 @@ const PostCard = ({
             )}
           </div>
         )}
+
+        {/* Double Click Heart Animation */}
+        <div
+          className={`absolute inset-0 flex items-center justify-center pointer-events-none z-20 transition-all duration-300 ${showHeartAnimation ? 'opacity-100 scale-100' : 'opacity-0 scale-50'}`}
+        >
+          <Heart size={100} className="text-white fill-white drop-shadow-lg" />
+        </div>
       </div>
 
       {/* Actions */}
@@ -329,51 +345,18 @@ const PostCard = ({
         )}
 
         {/* Tech Stack & Links */}
-        {(techStack?.length > 0 || githubUrl || liveUrl || caseStudyUrl) && (
-          <div className="mb-3 space-y-2">
-            {techStack && techStack.length > 0 && (
-              <div className="flex flex-wrap gap-2 mb-2">
-                {techStack.map((tech, idx) => (
-                  <span
-                    key={idx}
-                    className="bg-[#262626] text-gray-200 text-[11px] font-medium px-2 py-0.5 rounded"
-                  >
-                    {tech}
-                  </span>
-                ))}
-              </div>
-            )}
-            <div className="flex flex-wrap gap-4">
-              {githubUrl && (
-                <a
-                  href={githubUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-1.5 text-blue-500 text-sm font-semibold hover:text-blue-400 transition-colors"
+        {/* Tech Stack & Links */}
+        {techStack && techStack.length > 0 && (
+          <div className="mb-3">
+            <div className="flex flex-wrap gap-2 mb-2">
+              {techStack.map((tech, idx) => (
+                <span
+                  key={idx}
+                  className="bg-[#262626] text-gray-200 text-[11px] font-medium px-2 py-0.5 rounded"
                 >
-                  <Github size={14} /> Source Code
-                </a>
-              )}
-              {liveUrl && (
-                <a
-                  href={liveUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-1.5 text-blue-500 text-sm font-semibold hover:text-blue-400 transition-colors"
-                >
-                  <ExternalLink size={14} /> Live Demo
-                </a>
-              )}
-              {caseStudyUrl && (
-                <a
-                  href={caseStudyUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-1.5 text-gray-400 text-sm font-semibold hover:text-gray-300 transition-colors"
-                >
-                  <FileText size={14} /> Read Case Study
-                </a>
-              )}
+                  {tech}
+                </span>
+              ))}
             </div>
           </div>
         )}

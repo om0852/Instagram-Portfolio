@@ -55,14 +55,19 @@ export default function ProjectsPage() {
         <div className="flex bg-black min-h-screen text-white font-sans pb-16 lg:pb-0">
             <InstagramSidebar isMobileMenuOpen={isMobileMenuOpen} setIsMobileMenuOpen={setIsMobileMenuOpen} />
             <div className="flex-1 lg:ml-64">
-                <MobileHeader />
+                <MobileHeader setIsMobileMenuOpen={setIsMobileMenuOpen} />
                 <main className="max-w-5xl mx-auto px-4 py-8 md:px-8">
 
                     {/* Portfolio Header */}
                     <div className="flex flex-col md:flex-row items-center md:items-start gap-8 mb-12 border-b border-[#262626] pb-12">
-                        <div className="w-24 h-24 md:w-32 md:h-32 rounded-full bg-gradient-to-tr from-yellow-400 via-red-500 to-purple-500 p-[2px]">
-                            <div className="w-full h-full rounded-full bg-black p-1 flex items-center justify-center">
-                                <FolderKanban size={48} className="text-white" strokeWidth={1} />
+                        <div className="w-24 h-24 md:w-32 md:h-32 rounded-full bg-gradient-to-tr from-yellow-400 via-red-500 to-purple-500 p-[2px] relative">
+                            <div className="w-full h-full rounded-full bg-black p-1 relative overflow-hidden">
+                                <Image
+                                    src="/omsalunke_photo.jpg"
+                                    alt="Om Salunke"
+                                    fill
+                                    className="rounded-full object-cover p-1"
+                                />
                             </div>
                         </div>
 

@@ -185,7 +185,7 @@ export default function StoryViewer({
   }
 
   return (
-    <div className="fixed inset-0 bg-black z-50 flex items-center justify-center" role="dialog" aria-modal="true">
+    <div className="fixed inset-0 bg-black z-[60] flex items-center justify-center" role="dialog" aria-modal="true">
       <div className="absolute top-2 left-2 right-2 flex gap-1 z-10">
         {(story.media || [{}]).map((_, index) => (
           <div key={index} className="flex-1 h-0.5 bg-gray-600 rounded-full overflow-hidden">

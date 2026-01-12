@@ -7,7 +7,7 @@ export default function RightSidebar({ suggestions = [], footerLinks = [] }) {
     <div className="hidden md:block w-[340px] bg-black px-8 py-8 overflow-y-auto">
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
-          <Image src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150" alt="Profile" width={48} height={48} className="w-12 h-12 rounded-full object-cover" />
+          <Image src="/omsalunke_photo.jpg" alt="Profile" width={48} height={48} className="w-12 h-12 rounded-full object-cover" />
           <div>
             <p className="text-white text-sm font-semibold">salunke_om0852</p>
             <p className="text-gray-400 text-xs">om_salunke</p>

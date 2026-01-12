@@ -18,6 +18,7 @@ export default function ContactPage() {
     const [messages, setMessages] = useState([]);
     const [senderName, setSenderName] = useState("");
     const [isAdmin, setIsAdmin] = useState(false);
+    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
     // UI States
     const [showEmojiPicker, setShowEmojiPicker] = useState(false);
@@ -33,10 +34,11 @@ export default function ContactPage() {
     // Admin State
     const [allConversations, setAllConversations] = useState([]);
     const [selectedConversationId, setSelectedConversationId] = useState(null);
-    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
     const fileInputRef = useRef(null);
     const messagesEndRef = useRef(null);
+
+    const [mobileView, setMobileView] = useState("list"); // 'list' | 'chat'
 
     // Initial Load
     useEffect(() => {
@@ -93,6 +95,18 @@ export default function ContactPage() {
                 }
             }
         } catch (err) { console.error(err); }
+    };
+
+    // Update selection handlers to switch view on mobile
+    const handleTabSelect = (tab) => {
+        setActiveTab(tab);
+        setMobileView("chat");
+    };
+
+    const handleAdminSelect = (conv) => {
+        setSelectedConversationId(conv._id);
+        setMessages(conv.messages);
+        setMobileView("chat");
     };
 
     const handleSaveName = () => {
@@ -183,7 +197,6 @@ export default function ContactPage() {
                 });
                 setMailSubject("");
                 setMailBody("");
-                // keep email for convenience?
             } else {
                 toast.error("Failed to send email");
             }
@@ -198,45 +211,21 @@ export default function ContactPage() {
         setMessage(prev => prev + emojiData.emoji);
     };
 
-    // Messages Grouping/Date logic could be added here
-
-    const displayConversations = isAdmin ? allConversations : [];
-
     return (
         <div className="flex bg-black min-h-screen text-white font-sans pb-16 lg:pb-0 relative">
-
-            {/* Name Input Modal */}
-            {showNameModal && (
-                <div className="absolute inset-0 z-[60] bg-black/80 flex items-center justify-center p-4">
-                    <div className="bg-[#262626] p-6 rounded-2xl w-full max-w-sm border border-gray-700 shadow-2xl">
-                        <h3 className="text-xl font-bold mb-2">Welcome! 👋</h3>
-                        <p className="text-gray-400 mb-4 text-sm">Please join with your name to start chatting.</p>
-                        <input
-                            type="text"
-                            placeholder="Your Name"
-                            className="w-full bg-[#121212] border border-gray-600 rounded-lg px-4 py-2 mb-4 text-white focus:border-blue-500 outline-none transition-colors"
-                            value={tempName}
-                            onChange={(e) => setTempName(e.target.value)}
-                            onKeyDown={(e) => e.key === 'Enter' && handleSaveName()}
-                        />
-                        <button
-                            onClick={handleSaveName}
-                            className="w-full bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 rounded-lg transition-colors"
-                        >
-                            Start Chatting
-                        </button>
-                    </div>
-                </div>
-            )}
+            {/* ... Modals ... */}
 
             <InstagramSidebar isMobileMenuOpen={isMobileMenuOpen} setIsMobileMenuOpen={setIsMobileMenuOpen} />
             <div className="flex-1 lg:ml-64 grid grid-cols-1 md:grid-cols-[350px_1fr] h-screen pt-[50px] md:pt-0">
                 <div className="md:hidden fixed top-0 left-0 right-0 z-50">
-                    <MobileHeader />
+                    <MobileHeader setIsMobileMenuOpen={setIsMobileMenuOpen} />
                 </div>
 
-                {/* Left Side */}
-                <div className="hidden md:flex flex-col border-r border-[#262626]">
+                {/* Left Side (Conversation List) 
+                    - Mobile: Show if mobileView === 'list'
+                    - Desktop: Always Show
+                */}
+                <div className={`${mobileView === 'list' ? 'flex' : 'hidden'} md:flex flex-col border-r border-[#262626] h-full`}>
                     <div className="p-5 flex items-center justify-between border-b border-[#262626] h-[70px]">
                         <h2 className="text-xl font-bold flex items-center gap-1">
                             {isAdmin ? "Inbox (Admin)" : (senderName || "Guest")}
@@ -245,17 +234,19 @@ export default function ContactPage() {
                         <SquarePenIcon />
                     </div>
 
+
                     <div className="flex-1 overflow-y-auto">
                         <div className="flex items-center justify-between px-5 py-3">
                             <h3 className="font-bold">Messages</h3>
                             <span className="text-gray-500 text-sm font-semibold">Requests</span>
                         </div>
 
+
                         {isAdmin ? (
                             displayConversations.map(conv => (
                                 <div
                                     key={conv._id}
-                                    onClick={() => { setSelectedConversationId(conv._id); setMessages(conv.messages); }}
+                                    onClick={() => handleAdminSelect(conv)}
                                     className={`px-5 py-3 flex items-center gap-3 cursor-pointer hover:bg-[#121212] ${selectedConversationId === conv._id ? 'bg-[#1a1a1a]' : ''}`}
                                 >
                                     <div className="w-14 h-14 rounded-full bg-gradient-to-tr from-purple-500 to-orange-500 flex items-center justify-center text-xl font-bold uppercase flex-shrink-0">
@@ -272,11 +263,11 @@ export default function ContactPage() {
                         ) : (
                             <>
                                 <div
-                                    onClick={() => setActiveTab("general")}
+                                    onClick={() => handleTabSelect("general")}
                                     className={`px-5 py-3 flex items-center gap-3 cursor-pointer hover:bg-[#121212] ${activeTab === 'general' ? 'bg-[#1a1a1a]' : ''}`}
                                 >
                                     <div className="relative w-14 h-14">
-                                        <Image src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300" alt="Om" fill className="rounded-full object-cover" />
+                                        <Image src="/omsalunke_photo.jpg" alt="Om" fill className="rounded-full object-cover" />
                                         <div className="absolute bottom-0 right-0 w-3.5 h-3.5 bg-green-500 rounded-full border-2 border-black"></div>
                                     </div>
                                     <div>
@@ -286,7 +277,7 @@ export default function ContactPage() {
                                 </div>
 
                                 <div
-                                    onClick={() => setActiveTab("inquiry")}
+                                    onClick={() => handleTabSelect("inquiry")}
                                     className={`px-5 py-3 flex items-center gap-3 cursor-pointer hover:bg-[#121212] ${activeTab === 'inquiry' ? 'bg-[#1a1a1a]' : ''}`}
                                 >
                                     <div className="w-14 h-14 rounded-full bg-gray-800 flex items-center justify-center text-xl">🚀</div>
@@ -297,7 +288,7 @@ export default function ContactPage() {
                                 </div>
 
                                 <div
-                                    onClick={() => setActiveTab("mail")}
+                                    onClick={() => handleTabSelect("mail")}
                                     className={`px-5 py-3 flex items-center gap-3 cursor-pointer hover:bg-[#121212] ${activeTab === 'mail' ? 'bg-[#1a1a1a]' : ''}`}
                                 >
                                     <div className="w-14 h-14 rounded-full bg-red-600 flex items-center justify-center text-xl">
@@ -313,12 +304,20 @@ export default function ContactPage() {
                     </div>
                 </div>
 
-                {/* Right Side */}
-                <div className="flex flex-col h-full bg-black relative">
+                {/* Right Side (Chat/Content) 
+                    - Mobile: Show if mobileView === 'chat'
+                    - Desktop: Always Show
+                */}
+                <div className={`${mobileView === 'chat' ? 'flex' : 'hidden'} md:flex flex-col h-full bg-black relative`}>
 
                     {/* Header */}
                     <div className="px-5 py-3.5 border-b border-[#262626] flex items-center justify-between sticky top-0 bg-black z-10 h-[70px]">
                         <div className="flex items-center gap-3">
+                            {/* Mobile Back Button */}
+                            <button onClick={() => setMobileView("list")} className="md:hidden mr-1">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-arrow-left"><path d="m12 19-7-7 7-7" /><path d="M19 12H5" /></svg>
+                            </button>
+
                             {activeTab === 'mail' && !isAdmin ? (
                                 <div className="flex items-center gap-3">
                                     <div className="flex items-center justify-center w-11 h-11 bg-red-600 rounded-full">
@@ -332,14 +331,18 @@ export default function ContactPage() {
                             ) : (
                                 <>
                                     <div className="relative w-11 h-11 md:hidden">
-                                        <Image src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300" alt="Om" fill className="rounded-full object-cover" />
+                                        <Image src="/omsalunke_photo.jpg" alt="Om" fill className="rounded-full object-cover" />
                                     </div>
                                     <div className="flex flex-col">
                                         <h3 className="font-semibold text-base">
-                                            {isAdmin ? (selectedConversationId ? "Chatting with User" : "Select a conversation") : "Om Salunke (Hire Me)"}
+                                            {isAdmin
+                                                ? (selectedConversationId ? "Chatting with User" : "Select a conversation")
+                                                : (activeTab === 'inquiry' ? "Project Inquiry" : "Om Salunke (Hire Me)")}
                                         </h3>
                                         <span className="text-xs text-gray-400">
-                                            {isAdmin ? (selectedConversationId ? "Visitor" : "") : "Active now • Software Engineer"}
+                                            {isAdmin
+                                                ? (selectedConversationId ? "Visitor" : "")
+                                                : (activeTab === 'inquiry' ? "Let's build something together" : "Active now • Software Engineer")}
                                         </span>
                                     </div>
                                 </>
@@ -402,8 +405,8 @@ export default function ContactPage() {
                             <div className="flex-1 overflow-y-auto p-5 space-y-4">
                                 {!isAdmin && messages.length === 0 && (
                                     <div className="flex flex-col items-center justify-center h-full text-center opacity-50 pb-20">
-                                        <div className="w-24 h-24 rounded-full border-2 border-white/10 flex items-center justify-center mb-4">
-                                            <Image src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300" alt="Om" width={80} height={80} className="rounded-full" />
+                                        <div className="w-24 h-24 rounded-full border-2 border-white/10 flex items-center justify-center mb-4 relative overflow-hidden">
+                                            <Image src="/omsalunke_photo.jpg" alt="Om" fill className="object-cover" />
                                         </div>
                                         <h3 className="text-xl font-bold mb-2">Om Salunke</h3>
                                         <p className="text-sm max-w-xs">{activeTab === 'inquiry' ? "Interested in working together?" : "Send me a message!"}</p>
@@ -419,7 +422,7 @@ export default function ContactPage() {
                                                     {isAdmin ? (
                                                         <div className="w-full h-full rounded-full bg-gray-700 flex items-center justify-center text-[10px]">U</div>
                                                     ) : (
-                                                        <Image src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300" alt="Om" fill className="rounded-full object-cover" />
+                                                        <Image src="/omsalunke_photo.jpg" alt="Om" fill className="rounded-full object-cover" />
                                                     )}
                                                 </div>
                                             )}

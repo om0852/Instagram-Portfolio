@@ -1,10 +1,11 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import InstagramSidebar from "../_components/Sidebar";
 import Image from "next/image";
 import { Search, X, TrendingUp } from "lucide-react";
 import MobileHeader from "../_components/MobileHeader";
 import BottomNav from "../_components/BottomNav";
+import Link from "next/link";
 
 export default function SearchPage() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -50,7 +51,7 @@ export default function SearchPage() {
     <div className="flex bg-black min-h-screen text-white font-sans pb-16 lg:pb-0">
       <InstagramSidebar isMobileMenuOpen={isMobileMenuOpen} setIsMobileMenuOpen={setIsMobileMenuOpen} />
       <div className="flex-1 lg:ml-64">
-        <MobileHeader />
+        <MobileHeader setIsMobileMenuOpen={setIsMobileMenuOpen} />
         <main className="max-w-[935px] mx-auto pt-8 pb-12 px-4 md:px-0">
 
 
@@ -102,7 +103,11 @@ export default function SearchPage() {
           {/* Grid Content */}
           <div className="grid grid-cols-3 gap-1 md:gap-7">
             {results.map((project) => (
-              <div key={project._id} className="relative aspect-[4/5] md:aspect-square group cursor-pointer bg-[#121212]">
+              <Link
+                href={`/projects/${project._id || project.id}`}
+                key={project._id}
+                className="relative aspect-[4/5] md:aspect-square group cursor-pointer bg-[#121212] block"
+              >
                 <Image
                   src={project.images?.[0] || "https://placehold.co/600x400?text=No+Image"}
                   alt={project.title}
@@ -126,7 +131,7 @@ export default function SearchPage() {
                     <span className="flex items-center gap-1 text-sm"><span className="text-xl">💬</span> {project.commentsCount || (project.comments ? project.comments.length : 0)}</span>
                   </div>
                 </div>
-              </div>
+              </Link>
             ))}
           </div>
 
