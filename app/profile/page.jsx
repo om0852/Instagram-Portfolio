@@ -157,7 +157,7 @@ export default function PortfolioProfile() {
             {/* ROW 2: Bio */}
             <div className="mb-4 px-2">
               <div className="font-bold text-sm tracking-wide">{user.fullName}</div>
-              <div className="text-sm text-gray-400 mb-1">Web Designer</div>
+              {/* <div className="text-sm text-gray-400 mb-1">Web Designer</div> */}
               <div className="text-sm whitespace-pre-line leading-snug">
                 {user.bio || "Building things for the web."}
               </div>
@@ -166,19 +166,30 @@ export default function PortfolioProfile() {
                 <span>#FullStack</span>
                 <span>#Blockchain</span>
                 <span>#Freelancer</span>
-                <span>#Pune</span>
+                <span>#Developer</span>
               </div>
 
               {/* Links */}
               <div className="mt-2 space-y-1">
-                {user.externalLinks && user.externalLinks.map((link, i) => (
-                  <a key={i} href={link.url} target="_blank" className="flex items-center gap-2 text-[#E0F1FF] text-sm font-medium truncate bg-[#1a1a1a] p-1.5 rounded-lg border border-[#262626] hover:bg-[#262626] transition-colors w-full cursor-pointer">
-                    <div className="bg-[#262626] p-1 rounded-full">
-                      <LinkIcon size={10} className="text-gray-300" />
-                    </div>
-                    <span>{link.url.replace(/^https?:\/\//, '').replace(/^mailto:/, '').replace(/\/$/, '')}</span>
-                  </a>
-                ))}
+                {user.externalLinks && user.externalLinks.map((link, i) => {
+                  let displayText = link.url.replace(/^https?:\/\//, '').replace(/^mailto:/, '').replace(/\/$/, '');
+
+                  if (link.platform === "Website" || link.url.includes("salunkeom.netlify.app")) {
+                    displayText = "om.me";
+                  } else if (link.platform === "LinkedIn" && link.url.includes("/in/")) {
+                    const match = link.url.match(/\/in\/([^/]+)/);
+                    if (match) displayText = match[1];
+                  }
+
+                  return (
+                    <a key={i} href={link.url} target="_blank" className="flex items-center gap-2 text-[#E0F1FF] text-sm font-medium truncate bg-[#1a1a1a] p-1.5 rounded-lg border border-[#262626] hover:bg-[#262626] transition-colors w-full cursor-pointer">
+                      <div className="bg-[#262626] p-1 rounded-full">
+                        <LinkIcon size={10} className="text-gray-300" />
+                      </div>
+                      <span>{displayText}</span>
+                    </a>
+                  );
+                })}
               </div>
             </div>
 

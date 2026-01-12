@@ -113,7 +113,7 @@ export async function GET() {
             ],
 
             externalLinks: [
-                { platform: "Website", url: "https://om.me" },
+                { platform: "Website", url: "https://salunkeom.netlify.app/" },
                 { platform: "LinkedIn", url: "https://www.linkedin.com/in/om-salunke-81bb63292/" },
                 { platform: "GitHub", url: "https://github.com/om0852" },
                 { platform: "Email", url: "mailto:salunkeom474@gmail.com" }
