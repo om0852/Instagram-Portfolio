@@ -1,12 +1,13 @@
 "use client";
 import React from "react";
+import Image from "next/image";
 
 export default function RightSidebar({ suggestions = [], footerLinks = [] }) {
   return (
     <div className="hidden md:block w-[340px] bg-black px-8 py-8 overflow-y-auto">
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
-          <img src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150" alt="Profile" className="w-12 h-12 rounded-full object-cover" />
+          <Image src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150" alt="Profile" width={48} height={48} className="w-12 h-12 rounded-full object-cover" />
           <div>
             <p className="text-white text-sm font-semibold">salunke_om0852</p>
             <p className="text-gray-400 text-xs">om_salunke</p>
@@ -24,7 +25,7 @@ export default function RightSidebar({ suggestions = [], footerLinks = [] }) {
         {suggestions.map((user, index) => (
           <div key={index} className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <img src={user.image} alt={user.username} className="w-11 h-11 rounded-full object-cover" />
+              <Image src={user.image} alt={user.username} width={44} height={44} className="w-11 h-11 rounded-full object-cover" />
               <div>
                 <div className="flex items-center gap-1">
                   <p className="text-white text-sm font-semibold">{user.username}</p>

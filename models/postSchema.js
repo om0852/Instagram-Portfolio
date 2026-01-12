@@ -32,11 +32,13 @@ const PostSchema = new Schema(
 
     // Meta
     isPinned: { type: Boolean, default: false },
+    isSaved: { type: Boolean, default: false }, // For "Saved" tab
     order: { type: Number, default: 0 },
 
     // Simple analytics
     likes: { type: Number, default: 0 },
     views: { type: Number, default: 0 },
+    shares: { type: Number, default: 0 },
 
     // Interaction details
     comments: [

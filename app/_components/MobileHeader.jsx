@@ -4,7 +4,7 @@ import { Heart, Send } from "lucide-react";
 
 export default function MobileHeader() {
   return (
-    <div className="lg:hidden bg-black border-b border-gray-800 px-4 py-3 flex items-center justify-between sticky top-0 z-40">
+    <div className="lg:hidden bg-black border-b border-[#262626] px-4 py-3 flex items-center justify-between sticky top-0 z-40">
       <h1 className="text-white text-xl font-cursive">Instagram</h1>
       <div className="flex gap-4 items-center">
         <Heart className="text-white" size={24} />

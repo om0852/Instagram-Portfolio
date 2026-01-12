@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Generate Placeholder Story Slides</title>
+</head>
+<body>
+    <canvas id="canvas" width="1080" height="1920"></canvas>
+    <script>
+        // Slide 4: Building Mode
+        function createSlide4() {
+            const canvas = document.getElementById('canvas');
+            const ctx = canvas.getContext('2d');
+            
+            // Purple-blue gradient
+            const gradient = ctx.createLinearGradient(0, 0, 0, 1920);
+            gradient.addColorStop(0, '#667eea');
+            gradient.addColorStop(1, '#764ba2');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, 1080, 1920);
+            
+            // Title
+            ctx.fillStyle = 'white';
+            ctx.font = 'bold 80px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('BUILDING MODE 🛠️', 540, 300);
+            
+            // Text
+            ctx.font = '50px Arial';
+            ctx.fillText('Additional Features', 540, 900);
+            ctx.fillText('Going Beyond', 540, 1000);
+            ctx.fillText('Innovation in Action', 540, 1100);
+            
+            return canvas.toDataURL('image/png');
+        }
+        
+        // Slide 5: The Truth
+        function createSlide5() {
+            const canvas = document.getElementById('canvas');
+            const ctx = canvas.getContext('2d');
+            
+            // Gold-orange gradient
+            const gradient = ctx.createLinearGradient(0, 0, 0, 1920);
+            gradient.addColorStop(0, '#f093fb');
+            gradient.addColorStop(1, '#f5576c');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, 1080, 1920);
+            
+            // Title
+            ctx.fillStyle = 'white';
+            ctx.font = 'bold 80px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('THE TRUTH 💪', 540, 300);
+            
+            // Text
+            ctx.font = '50px Arial';
+            ctx.fillText('Built The BEST', 540, 900);
+            ctx.fillText('Outperformed Others', 540, 1000);
+            ctx.fillText('We Know Our Worth', 540, 1100);
+            
+            return canvas.toDataURL('image/png');
+        }
+        
+        // Slide 6: Builders
+        function createSlide6() {
+            const canvas = document.getElementById('canvas');
+            const ctx = canvas.getContext('2d');
+            
+            // Purple-gold gradient
+            const gradient = ctx.createLinearGradient(0, 0, 0, 1920);
+            gradient.addColorStop(0, '#a18cd1');
+            gradient.addColorStop(1, '#fbc2eb');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, 1080, 1920);
+            
+            // Title
+            ctx.fillStyle = 'white';
+            ctx.font = 'bold 90px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText("WE'RE BUILDERS! 🚀", 540, 500);
+            
+            // Text
+            ctx.font = '55px Arial';
+            ctx.fillText('Created The Best', 540, 900);
+            ctx.fillText('Learned New Skills', 540, 1000);
+            ctx.fillText('Innovators Never Lose', 540, 1100);
+            
+            return canvas.toDataURL('image/png');
+        }
+        
+        console.log('Placeholder slides ready - screenshot these to create images');
+    </script>
+</body>
+</html>

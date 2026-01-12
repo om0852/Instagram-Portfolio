@@ -1,94 +1,30 @@
-// app/api/posts/route.js
 import { NextResponse } from "next/server";
-import Post from "../../../models/postSchema";
-import { connectToDatabase } from "../../../utils/db";
+import { connectToDatabase } from "@/utils/db";
+import Post from "@/models/postSchema";
 
-// GET /api/posts?type=project|post|reel
-export async function GET(request) {
+export const dynamic = 'force-dynamic';
+
+export async function GET(req) {
   try {
     await connectToDatabase();
-
-    const { searchParams } = new URL(request.url);
-    const type = searchParams.get("type"); // optional
-
-    const filter = {};
-    if (["project", "post", "reel"].includes(type)) {
-      filter.type = type;
-    }
-
-    const posts = await Post.find(filter)
-      .sort({ isPinned: -1, order: 1, createdAt: -1 })
-      .lean();
-
-    return NextResponse.json({ data: posts });
+    // Simple fetch for now, can support pagination later
+    const posts = await Post.find({}).sort({ createdAt: -1 });
+    return NextResponse.json({ success: true, data: posts });
   } catch (error) {
-    console.error("GET /api/posts error:", error);
-    return NextResponse.json(
-      { error: "Failed to fetch posts" },
-      { status: 500 }
-    );
+    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   }
 }
 
-// POST /api/posts
-export async function POST(request) {
+export async function POST(req) {
   try {
     await connectToDatabase();
+    const body = await req.json();
 
-    const body = await request.json();
+    // In a real app, validate 'body' here
 
-    const {
-      type = "project",
-      title,
-      subtitle,
-      content,
-      images = [],
-      tags = [],
-      techStack = [],
-      githubUrl,
-      liveUrl,
-      caseStudyUrl,
-      videoUrl,
-      thumbnailUrl,
-      isPinned = false,
-      order = 0,
-    } = body;
-
-    if (!title) {
-      return NextResponse.json({ error: "Title is required" }, { status: 400 });
-    }
-
-    // Optional basic validation for reel
-    if (type === "reel" && !videoUrl) {
-      return NextResponse.json(
-        { error: "videoUrl is required when type is 'reel'" },
-        { status: 400 }
-      );
-    }
-
-    const post = await Post.create({
-      type,
-      title,
-      subtitle,
-      content,
-      images,
-      tags,
-      techStack,
-      githubUrl,
-      liveUrl,
-      caseStudyUrl,
-      videoUrl,
-      thumbnailUrl,
-      isPinned,
-      order,
-    });
-
-    return NextResponse.json({ data: post }, { status: 201 });
+    const post = await Post.create(body);
+    return NextResponse.json({ success: true, data: post }, { status: 201 });
   } catch (error) {
-    console.error("POST /api/posts error:", error);
-    return NextResponse.json(
-      { error: "Failed to create post" },
-      { status: 500 }
-    );
+    return NextResponse.json({ success: false, error: error.message }, { status: 400 });
   }
 }

@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from "react";
+import Image from "next/image";
+import { usePostInteraction } from "@/app/hooks/usePostInteraction";
 import {
   Heart,
   MessageCircle,
@@ -36,26 +38,37 @@ const PostCard = ({
   createdAt = "2024-03-15T10:30:00Z",
   _id = null,
 }) => {
-  const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const [isLiked, setIsLiked] = useState(false);
-  const [isSaved, setIsSaved] = useState(false);
-  const [likeCount, setLikeCount] = useState(likes);
-  // normalize incoming `comments` prop which may be a number or an array of comment objects
   const initialCommentsCount = Array.isArray(comments)
     ? comments.length
     : typeof comments === "number"
-    ? comments
-    : 0;
+      ? comments
+      : 0;
   const initialCommentsList = Array.isArray(comments)
     ? comments.map((c) => ({ text: c.text, createdAt: c.createdAt, _id: c._id }))
     : [];
 
-  const [commentsCount, setCommentsCount] = useState(initialCommentsCount);
-  const [commentsList, setCommentsList] = useState(initialCommentsList); // { text, createdAt }
+  const {
+    isLiked,
+    isSaved,
+    likeCount,
+    commentsCount,
+    commentsList,
+    toggleLike,
+    toggleSave,
+    addComment,
+    sharePost,
+  } = usePostInteraction({
+    _id,
+    likes,
+    comments: initialCommentsCount,
+    initialCommentsList,
+  });
+
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [commentText, setCommentText] = useState("");
   const [showComments, setShowComments] = useState(false);
-  // we'll store comments (server + optimistic) in `commentsList`
   const [showShare, setShowShare] = useState(false);
+  const [imageError, setImageError] = useState(false);
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);
@@ -72,134 +85,16 @@ const PostCard = ({
     return date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
   };
 
-  // Load fresh post data and local like/save state
-  useEffect(() => {
-    if (!_id) return;
-
-    const lsLiked = localStorage.getItem(`liked_${_id}`) === "1";
-    const lsSaved = localStorage.getItem(`saved_${_id}`) === "1";
-    setIsLiked(lsLiked);
-    setIsSaved(lsSaved);
-
-    let mounted = true;
-    (async () => {
-      try {
-        const res = await fetch(`/api/posts/${_id}`);
-        if (!res.ok) return;
-        const json = await res.json();
-        const post = json.data;
-        if (!mounted || !post) return;
-        setLikeCount(post.likes || 0);
-        setCommentsCount(post.commentsCount || (post.comments ? post.comments.length : 0));
-        setCommentsList((post.comments || []).map((c) => ({ text: c.text, createdAt: c.createdAt })));
-      } catch (err) {
-        console.error("Failed to fetch post data", err);
-      }
-    })();
-
-    // If user had liked locally but server may not have recorded it (no per-user tracking),
-    // attempt a one-time sync so the DB reflects this browser's like. This avoids showing
-    // the heart as liked but likes count remaining 0 after a refresh.
-    (async () => {
-      try {
-        const syncedFlag = localStorage.getItem(`synced_like_${_id}`) === "1";
-        const lsLikedNow = localStorage.getItem(`liked_${_id}`) === "1";
-        if (lsLikedNow && !syncedFlag) {
-          // send a like=true to ensure DB increments once for this client
-          const r = await fetch(`/api/posts/${_id}/interact`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ action: "like", like: true }),
-          });
-          if (r.ok) {
-            localStorage.setItem(`synced_like_${_id}`, "1");
-            const j = await r.json();
-            if (j.data && typeof j.data.likes === "number") {
-              setLikeCount(j.data.likes);
-            }
-          }
-        }
-      } catch (err) {
-        console.warn("One-time like sync failed", err);
-      }
-    })();
-
-    return () => (mounted = false);
-  }, [_id]);
-
-  const handleLike = async () => {
-    const previousLiked = isLiked;
-    const previousCount = likeCount;
-    const newLiked = !isLiked;
-
-    // optimistic UI
-    setIsLiked(newLiked);
-    setLikeCount(newLiked ? likeCount + 1 : Math.max(0, likeCount - 1));
-    if (_id) localStorage.setItem(`liked_${_id}`, newLiked ? "1" : "0");
-
-    try {
-      const res = await fetch(`/api/posts/${_id}/interact`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action: "like", like: newLiked }),
-      });
-
-      if (!res.ok) {
-        // revert optimistic
-        setIsLiked(previousLiked);
-        setLikeCount(previousCount);
-        if (_id) localStorage.setItem(`liked_${_id}`, previousLiked ? "1" : "0");
-        const text = await res.text();
-        console.error("Like API returned error:", res.status, text);
-        return;
-      }
-
-      const json = await res.json();
-      if (json.data && typeof json.data.likes === "number") {
-        setLikeCount(json.data.likes);
-      }
-    } catch (err) {
-      // network or other error -> revert optimistic
-      setIsLiked(previousLiked);
-      setLikeCount(previousCount);
-      if (_id) localStorage.setItem(`liked_${_id}`, previousLiked ? "1" : "0");
-      console.error("Like API error", err);
-    }
-  };
-
-  const handleComment = async () => {
-    const text = commentText.trim();
-    if (!text) return;
-    // optimistic UI: add to comments list with optimistic flag
-    const optimistic = { text, createdAt: new Date().toISOString(), optimistic: true };
-    setCommentsList((prev) => [...prev, optimistic]);
+  const handleComment = () => {
+    addComment(commentText);
     setCommentText("");
-
-    try {
-      const res = await fetch(`/api/posts/${_id}/interact`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action: "comment", text }),
-      });
-      if (res.ok) {
-        // re-fetch post to get authoritative comments and count
-        const p = await fetch(`/api/posts/${_id}`);
-        if (p.ok) {
-          const json = await p.json();
-          const post = json.data;
-          setCommentsList((post.comments || []).map((c) => ({ text: c.text, createdAt: c.createdAt })));
-          setCommentsCount(post.commentsCount || (post.comments ? post.comments.length : 0));
-        }
-      }
-    } catch (err) {
-      console.error("Comment API error", err);
-    }
   };
 
   const handleShare = (platform) => {
+    sharePost(); // Track share in backend
     const url = liveUrl || window.location.href;
     const text = `Check out this post by ${title}`;
-    
+
     const shareUrls = {
       twitter: `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`,
       facebook: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`,
@@ -220,10 +115,12 @@ const PostCard = ({
   };
 
   const nextImage = () => {
+    setImageError(false);
     setCurrentImageIndex((prev) => (prev + 1) % images.length);
   };
 
   const prevImage = () => {
+    setImageError(false);
     setCurrentImageIndex((prev) => (prev - 1 + images.length) % images.length);
   };
 
@@ -232,26 +129,23 @@ const PostCard = ({
       {/* Header */}
       <div className="flex items-center justify-between px-3 py-2.5">
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-full flex-shrink-0">
-            <img
+          <div className="w-8 h-8 rounded-full flex-shrink-0 relative">
+            <Image
               src={thumbnailUrl}
               alt={title}
-              className="w-full h-full rounded-full object-cover"
+              fill
+              className="rounded-full object-cover"
+              sizes="32px"
             />
           </div>
-          <div className="flex items-center gap-1.5 flex-wrap">
-            <span className="text-white text-sm font-semibold">{title}</span>
+          <div className="flex flex-col justify-center">
+            <div className="flex items-center gap-1.5">
+              <span className="text-white text-sm font-semibold leading-none">{title}</span>
+              {isPinned && <span className="text-gray-400 text-xs transform rotate-45">📌</span>}
+            </div>
             {subtitle && (
-              <span className="text-gray-400 text-xs">• {subtitle}</span>
+              <span className="text-gray-400 text-xs leading-none mt-0.5">{subtitle}</span>
             )}
-            <svg
-              className="w-3.5 h-3.5 text-blue-500 flex-shrink-0"
-              fill="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
-            </svg>
-            <span className="text-gray-400 text-xs">• {formatDate(createdAt)}</span>
           </div>
         </div>
         <button className="text-white hover:opacity-70 transition-opacity">
@@ -275,34 +169,37 @@ const PostCard = ({
           </div>
         ) : (
           <div className="relative w-full aspect-square">
-            <img
-              src={images[currentImageIndex]}
+            <Image
+              src={imageError ? "https://placehold.co/600x400?text=Image+Not+Found" : images[currentImageIndex]}
               alt={`Post ${currentImageIndex + 1}`}
-              className="w-full h-full object-cover"
+              fill
+              className="object-cover"
+              sizes="(max-width: 768px) 100vw, 470px"
+              priority={currentImageIndex === 0}
+              onError={() => setImageError(true)}
             />
-            
+
             {images.length > 1 && (
               <>
                 <button
                   onClick={prevImage}
-                  className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white rounded-full p-1.5 transition-all"
+                  className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white rounded-full p-1.5 transition-all z-10"
                 >
                   <ChevronLeft size={20} />
                 </button>
                 <button
                   onClick={nextImage}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white rounded-full p-1.5 transition-all"
+                  className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white rounded-full p-1.5 transition-all z-10"
                 >
                   <ChevronRight size={20} />
                 </button>
-                
-                <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5">
+
+                <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5 z-10">
                   {images.map((_, idx) => (
                     <div
                       key={idx}
-                      className={`w-1.5 h-1.5 rounded-full transition-all ${
-                        idx === currentImageIndex ? "bg-white w-2" : "bg-white/50"
-                      }`}
+                      className={`w-1.5 h-1.5 rounded-full transition-all ${idx === currentImageIndex ? "bg-white w-2" : "bg-white/50"
+                        }`}
                     />
                   ))}
                 </div>
@@ -317,56 +214,38 @@ const PostCard = ({
         <div className="flex items-center justify-between mb-2">
           <div className="flex items-center gap-4">
             <button
-              onClick={handleLike}
-              className="hover:opacity-50 transition-opacity"
+              onClick={toggleLike}
+              className="hover:opacity-60 transition-opacity"
             >
               <Heart
-                size={26}
+                size={24}
                 className={isLiked ? "text-red-500 fill-red-500" : "text-white"}
                 strokeWidth={1.5}
               />
             </button>
             <button
               onClick={() => setShowComments(!showComments)}
-              className="hover:opacity-50 transition-opacity"
+              className="hover:opacity-60 transition-opacity"
             >
-              <MessageCircle size={26} className="text-white" strokeWidth={1.5} />
+              <MessageCircle size={24} className="text-white" strokeWidth={1.5} />
             </button>
             <button
               onClick={() => setShowShare(!showShare)}
-              className="hover:opacity-50 transition-opacity relative"
+              className="hover:opacity-60 transition-opacity relative"
             >
-              <Send size={26} className="text-white" strokeWidth={1.5} />
+              <Send size={24} className="text-white" strokeWidth={1.5} />
             </button>
           </div>
-            <button
-              onClick={async () => {
-                const newSaved = !isSaved;
-                setIsSaved(newSaved);
-                if (_id) localStorage.setItem(`saved_${_id}`, newSaved ? "1" : "0");
-                try {
-                  const res = await fetch(`/api/posts/${_id}/interact`, {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ action: "save", save: newSaved }),
-                  });
-                  if (res.ok) {
-                    const json = await res.json();
-                    // optionally use json.data.savedCount if you want to show saved count
-                    // setSavedCount(json.data.savedCount)
-                  }
-                } catch (err) {
-                  console.error("Save API error", err);
-                }
-              }}
-              className="hover:opacity-50 transition-opacity"
-            >
-              <Bookmark
-                size={26}
-                className={isSaved ? "text-white fill-white" : "text-white"}
-                strokeWidth={1.5}
-              />
-            </button>
+          <button
+            onClick={toggleSave}
+            className="hover:opacity-60 transition-opacity"
+          >
+            <Bookmark
+              size={24}
+              className={isSaved ? "text-white fill-white" : "text-white"}
+              strokeWidth={1.5}
+            />
+          </button>
         </div>
 
         {/* Share Modal */}
@@ -411,14 +290,18 @@ const PostCard = ({
         {/* Likes */}
         <div className="flex items-center gap-1 mb-2">
           <div className="flex -space-x-2">
-            <img
+            <Image
               src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=50"
               alt=""
+              width={20}
+              height={20}
               className="w-5 h-5 rounded-full border border-black"
             />
-            <img
+            <Image
               src="https://images.unsplash.com/photo-1517841905240-472988babdf9?w=50"
               alt=""
+              width={20}
+              height={20}
               className="w-5 h-5 rounded-full border border-black"
             />
           </div>
@@ -447,28 +330,28 @@ const PostCard = ({
 
         {/* Tech Stack & Links */}
         {(techStack?.length > 0 || githubUrl || liveUrl || caseStudyUrl) && (
-          <div className="bg-gray-900 rounded-lg p-2.5 mb-2 space-y-2">
+          <div className="mb-3 space-y-2">
             {techStack && techStack.length > 0 && (
-              <div className="flex flex-wrap gap-1.5">
+              <div className="flex flex-wrap gap-2 mb-2">
                 {techStack.map((tech, idx) => (
                   <span
                     key={idx}
-                    className="bg-gray-800 text-gray-300 text-xs px-2 py-1 rounded"
+                    className="bg-[#262626] text-gray-200 text-[11px] font-medium px-2 py-0.5 rounded"
                   >
                     {tech}
                   </span>
                 ))}
               </div>
             )}
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap gap-4">
               {githubUrl && (
                 <a
                   href={githubUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center gap-1 bg-gray-800 hover:bg-gray-700 text-white text-xs px-2 py-1 rounded transition-colors"
+                  className="flex items-center gap-1.5 text-blue-500 text-sm font-semibold hover:text-blue-400 transition-colors"
                 >
-                  <Github size={12} /> Code
+                  <Github size={14} /> Source Code
                 </a>
               )}
               {liveUrl && (
@@ -476,9 +359,9 @@ const PostCard = ({
                   href={liveUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center gap-1 bg-blue-600 hover:bg-blue-700 text-white text-xs px-2 py-1 rounded transition-colors"
+                  className="flex items-center gap-1.5 text-blue-500 text-sm font-semibold hover:text-blue-400 transition-colors"
                 >
-                  <ExternalLink size={12} /> Live Demo
+                  <ExternalLink size={14} /> Live Demo
                 </a>
               )}
               {caseStudyUrl && (
@@ -486,9 +369,9 @@ const PostCard = ({
                   href={caseStudyUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center gap-1 bg-gray-800 hover:bg-gray-700 text-white text-xs px-2 py-1 rounded transition-colors"
+                  className="flex items-center gap-1.5 text-gray-400 text-sm font-semibold hover:text-gray-300 transition-colors"
                 >
-                  <FileText size={12} /> Case Study
+                  <FileText size={14} /> Read Case Study
                 </a>
               )}
             </div>
