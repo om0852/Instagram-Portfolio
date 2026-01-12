@@ -176,7 +176,7 @@ export default function PortfolioProfile() {
                     <div className="bg-[#262626] p-1 rounded-full">
                       <LinkIcon size={10} className="text-gray-300" />
                     </div>
-                    <span>{link.url.replace(/^https?:\/\//, '').replace(/\/$/, '')}</span>
+                    <span>{link.url.replace(/^https?:\/\//, '').replace(/^mailto:/, '').replace(/\/$/, '')}</span>
                   </a>
                 ))}
               </div>

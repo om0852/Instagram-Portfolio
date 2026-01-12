@@ -1,10 +1,10 @@
 import { NextResponse } from "next/server";
-import connectDB from "@/utils/db";
+import { connectToDatabase } from "@/utils/db";
 import Story from "@/models/storySchema";
 
 export async function POST(req) {
     try {
-        await connectDB();
+        await connectToDatabase();
 
         // Hackathon 1: First Win at Sanjivani
         const hackathon1 = {
