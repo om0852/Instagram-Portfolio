@@ -213,10 +213,31 @@ export default function ContactPage() {
 
     return (
         <div className="flex bg-black min-h-screen text-white font-sans pb-16 lg:pb-0 relative">
-            {/* ... Modals ... */}
+            {showNameModal && (
+                <div className="fixed inset-0 bg-black/80 z-[100] flex items-center justify-center px-4">
+                    <div className="bg-[#1a1a1a] p-6 rounded-2xl w-full max-w-sm border border-[#262626]">
+                        <h3 className="text-xl font-bold mb-2 text-center">What should I call you?</h3>
+                        <p className="text-gray-400 text-sm text-center mb-6">Enter your name so I know who I'm chatting with!</p>
+                        <input
+                            type="text"
+                            className="w-full bg-[#262626] border border-gray-700 rounded-lg px-4 py-3 mb-4 text-white focus:border-blue-500 outline-none text-center"
+                            placeholder="Your Name"
+                            value={tempName}
+                            onChange={(e) => setTempName(e.target.value)}
+                            autoFocus
+                        />
+                        <button
+                            onClick={handleSaveName}
+                            className="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 rounded-xl transition-all"
+                        >
+                            Start Chatting
+                        </button>
+                    </div>
+                </div>
+            )}
 
             <InstagramSidebar isMobileMenuOpen={isMobileMenuOpen} setIsMobileMenuOpen={setIsMobileMenuOpen} />
-            <div className="flex-1 lg:ml-64 grid grid-cols-1 md:grid-cols-[350px_1fr] h-screen pt-[50px] md:pt-0">
+            <div className="flex-1 lg:ml-64 grid grid-cols-1 md:grid-cols-[350px_1fr] h-[calc(100vh-70px)] md:h-screen pt-[50px] md:pt-0">
                 <div className="md:hidden fixed top-0 left-0 right-0 z-50">
                     <MobileHeader setIsMobileMenuOpen={setIsMobileMenuOpen} />
                 </div>
@@ -337,7 +358,7 @@ export default function ContactPage() {
                                         <h3 className="font-semibold text-base">
                                             {isAdmin
                                                 ? (selectedConversationId ? "Chatting with User" : "Select a conversation")
-                                                : (activeTab === 'inquiry' ? "Project Inquiry" : "Om Salunke (Hire Me)")}
+                                                : (activeTab === 'inquiry' ? "Project Inquiry" : "Om Salunke")}
                                         </h3>
                                         <span className="text-xs text-gray-400">
                                             {isAdmin
